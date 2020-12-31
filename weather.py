@@ -196,9 +196,12 @@ try:
             result[zipcode][year][month][day]["wind"]["mean"] = meanWind
             result[zipcode][year][month][day]["wind"]["max"] = maxWind
             result[zipcode][year][month][day]["wind"]["maxGust"] = maxGust
-            os.system("echo progress: " + str(progress / totalProgress) + " > progress")
             time.sleep(10)  # Sleep to avoid getting IP banned
-
+            
+            progress = progress + 1
+            progressPercent = float(progress / totalProgress) * 100
+            os.system("echo progress: " + str(progressPercent) + " > progress")
+            print(progressPercent)
             date = date + datetime.timedelta(days=1)
     print("Done.")
 except:
