@@ -4,6 +4,7 @@ from requests_html import HTMLSession
 import json
 import time
 import datetime
+import os
 
 alminac = "https://www.almanac.com/weather/history/zipcode/CODE/YEAR-MONTH-DAY"
 zipcodes = [
@@ -48,14 +49,14 @@ zipcodes = [
 
 f = open("out.json", "w")
 session = HTMLSession()
-
 result = {}
+MAX_DATE = datetime.datetime(2019, 12, 31)
+MIN_DATE = datetime.datetime(1969, 12, 31)
+totalProgress = len(zipcodes) + (MAX_DATE - MIN_DATE).days
+progress = 0
 
 try:
-    MAX_DATE = datetime.datetime(2019, 12, 31)
-    MIN_DATE = datetime.datetime(1969, 12, 31)
     for zipcode in zipcodes:
-        print(zipcode)
         result[zipcode] = {}
         date = MIN_DATE
         year = int(date.year)
@@ -72,7 +73,6 @@ try:
             link = link.replace("DAY", date.strftime("%d"))
             result[zipcode][year][month][day]["link"] = link
 
-            print("\tRequesting " + date.strftime("%Y-%m-%d"))
             res = session.get(link)
             res.html.render()
             mean = None
@@ -174,38 +174,29 @@ try:
                 )
             except:
                 pass
-            print(
-                "\t\tMin Temperature: "
-                + str(minimum)
-                + "\n\t\tMean Temperature: "
-                + str(mean)
-                + "\n\t\tMax Temperature: "
-                + str(maximum)
-                + "\n\t\tPrecipitation"
-                + str(precipitation)
-                + "\n\t\tSnow Depth"
-                + str(snowDepth)
-                + "\n\t\tMean Wind Speed: "
-                + str(meanWind)
-                + "\n\t\tMax Wind Speed: "
-                + str(maxWind)
-            )
+
             result[zipcode][year][month][day]["temperature"] = {}
             result[zipcode][year][month][day]["temperature"]["minimum"] = minimum
             result[zipcode][year][month][day]["temperature"]["mean"] = mean
             result[zipcode][year][month][day]["temperature"]["maximum"] = maximum
             result[zipcode][year][month][day]["pressureAndDewPoint"] = {}
-            result[zipcode][year][month][day]["pressureAndDewPoint"]["dewPoint"] = dewPoint
-            result[zipcode][year][month][day]["pressureAndDewPoint"]["pressure"] = pressure
+            result[zipcode][year][month][day]["pressureAndDewPoint"][
+                "dewPoint"
+            ] = dewPoint
+            result[zipcode][year][month][day]["pressureAndDewPoint"][
+                "pressure"
+            ] = pressure
             result[zipcode][year][month][day]["precipitation"] = {}
             result[zipcode][year][month][day]["precipitation"]["total"] = precipitation
             result[zipcode][year][month][day]["precipitation"]["snowDepth"] = snowDepth
-            result[zipcode][year][month][day]["precipitation"]["visibility"] = visibility
+            result[zipcode][year][month][day]["precipitation"][
+                "visibility"
+            ] = visibility
             result[zipcode][year][month][day]["wind"] = {}
             result[zipcode][year][month][day]["wind"]["mean"] = meanWind
             result[zipcode][year][month][day]["wind"]["max"] = maxWind
             result[zipcode][year][month][day]["wind"]["maxGust"] = maxGust
-            print(result)
+            os.system("echo progress: " + str(progress / totalProgress) + " > progress")
             time.sleep(10)  # Sleep to avoid getting IP banned
 
             date = date + datetime.timedelta(days=1)
