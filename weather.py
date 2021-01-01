@@ -200,7 +200,8 @@ try:
             
             progress = progress + 1
             progressPercent = float(progress / totalProgress) * 100
-            os.system("echo progress: " + str(progressPercent) + " > progress")
+            with open("progress", "w") as file:
+                file.write("progress: " + str(progressPercent))
             print(progressPercent)
             date = date + datetime.timedelta(days=1)
     print("Done.")
