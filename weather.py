@@ -5,6 +5,7 @@ import json
 import time
 import datetime
 import os
+import random
 
 alminac = "https://www.almanac.com/weather/history/zipcode/CODE/YEAR-MONTH-DAY"
 zipcodes = [
@@ -47,17 +48,23 @@ zipcodes = [
     "04462",
 ]
 
-f = open("out.json", "w")
-session = HTMLSession()
+
+def writeToFile():
+    with open("out.json", "w") as f:
+        f.write(json.dumps(result))
+        f.close()
+
+
 result = {}
-MAX_DATE = datetime.datetime(2019, 12, 31)
-MIN_DATE = datetime.datetime(1969, 12, 31)
+MAX_DATE = datetime.datetime(2020, 1, 1)
+MIN_DATE = datetime.datetime(1970, 1, 1)
 totalProgress = len(zipcodes) + (MAX_DATE - MIN_DATE).days
 progress = 0
 
 try:
     for zipcode in zipcodes:
-        print(zipcode)
+        print("Writing to file")
+        writeToFile()
         result[zipcode] = {}
         date = MIN_DATE
         year = int(date.year)
@@ -67,6 +74,7 @@ try:
         result[zipcode][year][month] = {}
         result[zipcode][year][month][day] = {}
         while date < MAX_DATE:
+            progressDateBefore = date.now()
             link = alminac
             link = link.replace("CODE", zipcode)
             link = link.replace("YEAR", date.strftime("%Y"))
@@ -74,8 +82,12 @@ try:
             link = link.replace("DAY", date.strftime("%d"))
             result[zipcode][year][month][day]["link"] = link
 
+            session = HTMLSession()
             res = session.get(link)
-            res.html.render()
+            print("\tGet request took: " + str((date.now() - progressDateBefore)))
+            res.html.render(timeout=10)
+            print("\tRender took: " + str((date.now() - progressDateBefore)))
+
             mean = None
             try:
                 mean = float(
@@ -197,17 +209,25 @@ try:
             result[zipcode][year][month][day]["wind"]["mean"] = meanWind
             result[zipcode][year][month][day]["wind"]["max"] = maxWind
             result[zipcode][year][month][day]["wind"]["maxGust"] = maxGust
-            time.sleep(10)  # Sleep to avoid getting IP banned
-            
+
             progress = progress + 1
             progressPercent = float(progress / totalProgress) * 100
+            progressDateDiff = date.now() - progressDateBefore
+            print("\tScrape took: " + str(date.now() - progressDateBefore))
             with open("progress", "w") as file:
-                file.write("progress: " + str(progressPercent))
+                file.write(
+                    "progress: "
+                    + str(progressPercent)
+                    + "\nLast scrape took: "
+                    + str(progressDateDiff)
+                    + "\n"
+                )
             date = date + datetime.timedelta(days=1)
+            time.sleep(0 + random.randint(0, 60))  # Sleep to avoid getting IP banned
+            session.close()
     print("Done.")
 except:
     print("Encountered error, saving to file.")
     traceback.print_exc()
 finally:
-    f.write(json.dumps(result))
-    f.close()
+    writeToFile()
