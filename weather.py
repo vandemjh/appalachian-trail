@@ -57,6 +57,7 @@ progress = 0
 
 try:
     for zipcode in zipcodes:
+        print(zipcode)
         result[zipcode] = {}
         date = MIN_DATE
         year = int(date.year)
@@ -202,7 +203,6 @@ try:
             progressPercent = float(progress / totalProgress) * 100
             with open("progress", "w") as file:
                 file.write("progress: " + str(progressPercent))
-            print(progressPercent)
             date = date + datetime.timedelta(days=1)
     print("Done.")
 except:
