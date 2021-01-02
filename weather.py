@@ -61,173 +61,178 @@ MIN_DATE = datetime.datetime(1970, 1, 1)
 totalProgress = len(zipcodes) + (MAX_DATE - MIN_DATE).days
 progress = 0
 
-try:
-    for zipcode in zipcodes:
-        print("Writing to file")
-        writeToFile()
+
+for zipcode in zipcodes:
+    print("Writing to file")
+    writeToFile()
+    if not zipcode in result:
         result[zipcode] = {}
-        date = MIN_DATE
+    date = MIN_DATE
+    while date < MAX_DATE:
         year = int(date.year)
         month = int(date.month)
         day = int(date.day)
-        result[zipcode][year] = {}
-        result[zipcode][year][month] = {}
-        result[zipcode][year][month][day] = {}
-        while date < MAX_DATE:
-            progressDateBefore = date.now()
-            link = alminac
-            link = link.replace("CODE", zipcode)
-            link = link.replace("YEAR", date.strftime("%Y"))
-            link = link.replace("MONTH", date.strftime("%m"))
-            link = link.replace("DAY", date.strftime("%d"))
-            result[zipcode][year][month][day]["link"] = link
+        # Create dicts for year month day if they do not exist
+        if not year in result[zipcode]:
+            result[zipcode][year] = {}
+        if not month in result[zipcode][year]:
+            result[zipcode][year][month] = {}
+        if not day in result[zipcode][year][month]:
+            result[zipcode][year][month][day] = {}
 
-            session = HTMLSession()
-            res = session.get(link)
+        progressDateBefore = date.now()
+        link = alminac
+        link = link.replace("CODE", zipcode)
+        link = link.replace("YEAR", date.strftime("%Y"))
+        link = link.replace("MONTH", date.strftime("%m"))
+        link = link.replace("DAY", date.strftime("%d"))
+        result[zipcode][year][month][day]["link"] = link
+
+        session = HTMLSession()
+        res = session.get(link)
+        try:
             print("\tGet request took: " + str((date.now() - progressDateBefore)))
-            res.html.render(timeout=10)
+            res.html.render(timeout=100)
             print("\tRender took: " + str((date.now() - progressDateBefore)))
+        except Exception as e:
+            print("Encountered error")
+            result[zipcode][year][month][day]["error"] = str(e)
+            traceback.print_exc()
+            continue
 
-            mean = None
-            try:
-                mean = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.temp > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            minimum = None
-            try:
-                minimum = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.temp_mn > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            maximum = None
-            try:
-                maximum = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.temp_mx > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            precipitation = None
-            try:
-                precipitation = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.prcp > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            meanWind = None
-            try:
-                meanWind = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.wdsp > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            maxWind = None
-            try:
-                maxWind = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.mxspd > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            snowDepth = None
-            try:
-                snowDepth = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.sndp > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            pressure = None
-            try:
-                pressure = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.slp > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            dewPoint = None
-            try:
-                dewPoint = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.dewp > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            visibility = None
-            try:
-                visibility = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.visib > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
-            maxGust = None
-            try:
-                maxGust = float(
-                    res.html.find(
-                        "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.gust > td > p > span.value"
-                    )[0].text
-                )
-            except:
-                pass
+        mean = None
+        try:
+            mean = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.temp > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        minimum = None
+        try:
+            minimum = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.temp_mn > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        maximum = None
+        try:
+            maximum = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.temp_mx > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        precipitation = None
+        try:
+            precipitation = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.prcp > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        meanWind = None
+        try:
+            meanWind = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.wdsp > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        maxWind = None
+        try:
+            maxWind = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.mxspd > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        snowDepth = None
+        try:
+            snowDepth = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.sndp > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        pressure = None
+        try:
+            pressure = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.slp > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        dewPoint = None
+        try:
+            dewPoint = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.dewp > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        visibility = None
+        try:
+            visibility = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.visib > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
+        maxGust = None
+        try:
+            maxGust = float(
+                res.html.find(
+                    "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.gust > td > p > span.value"
+                )[0].text
+            )
+        except:
+            pass
 
-            result[zipcode][year][month][day]["temperature"] = {}
-            result[zipcode][year][month][day]["temperature"]["minimum"] = minimum
-            result[zipcode][year][month][day]["temperature"]["mean"] = mean
-            result[zipcode][year][month][day]["temperature"]["maximum"] = maximum
-            result[zipcode][year][month][day]["pressureAndDewPoint"] = {}
-            result[zipcode][year][month][day]["pressureAndDewPoint"][
-                "dewPoint"
-            ] = dewPoint
-            result[zipcode][year][month][day]["pressureAndDewPoint"][
-                "pressure"
-            ] = pressure
-            result[zipcode][year][month][day]["precipitation"] = {}
-            result[zipcode][year][month][day]["precipitation"]["total"] = precipitation
-            result[zipcode][year][month][day]["precipitation"]["snowDepth"] = snowDepth
-            result[zipcode][year][month][day]["precipitation"][
-                "visibility"
-            ] = visibility
-            result[zipcode][year][month][day]["wind"] = {}
-            result[zipcode][year][month][day]["wind"]["mean"] = meanWind
-            result[zipcode][year][month][day]["wind"]["max"] = maxWind
-            result[zipcode][year][month][day]["wind"]["maxGust"] = maxGust
+        result[zipcode][year][month][day]["temperature"] = {}
+        result[zipcode][year][month][day]["temperature"]["minimum"] = minimum
+        result[zipcode][year][month][day]["temperature"]["mean"] = mean
+        result[zipcode][year][month][day]["temperature"]["maximum"] = maximum
+        result[zipcode][year][month][day]["pressureAndDewPoint"] = {}
+        result[zipcode][year][month][day]["pressureAndDewPoint"]["dewPoint"] = dewPoint
+        result[zipcode][year][month][day]["pressureAndDewPoint"]["pressure"] = pressure
+        result[zipcode][year][month][day]["precipitation"] = {}
+        result[zipcode][year][month][day]["precipitation"]["total"] = precipitation
+        result[zipcode][year][month][day]["precipitation"]["snowDepth"] = snowDepth
+        result[zipcode][year][month][day]["precipitation"]["visibility"] = visibility
+        result[zipcode][year][month][day]["wind"] = {}
+        result[zipcode][year][month][day]["wind"]["mean"] = meanWind
+        result[zipcode][year][month][day]["wind"]["max"] = maxWind
+        result[zipcode][year][month][day]["wind"]["maxGust"] = maxGust
 
-            progress = progress + 1
-            progressPercent = float(progress / totalProgress) * 100
-            progressDateDiff = date.now() - progressDateBefore
-            print("\tScrape took: " + str(date.now() - progressDateBefore))
-            with open("progress", "w") as file:
-                file.write(
-                    "progress: "
-                    + str(progressPercent)
-                    + "\nLast scrape took: "
-                    + str(progressDateDiff)
-                    + "\n"
-                )
-            date = date + datetime.timedelta(days=1)
-            time.sleep(0 + random.randint(0, 60))  # Sleep to avoid getting IP banned
-            session.close()
-    print("Done.")
-except:
-    print("Encountered error, saving to file.")
-    traceback.print_exc()
-finally:
-    writeToFile()
+        progress = progress + 1
+        progressPercent = float(progress / totalProgress) * 100
+        progressDateDiff = date.now() - progressDateBefore
+        print("\tScrape took: " + str(date.now() - progressDateBefore))
+        with open("progress", "w") as file:
+            file.write(
+                "progress: "
+                + str(progressPercent)
+                + "\nLast scrape took: "
+                + str(progressDateDiff)
+                + "\nCurrent date: "
+                + str(date)
+                + "\n"
+            )
+        date = date + datetime.timedelta(days=1)
+        time.sleep(0 + random.randint(0, 60))  # Sleep to avoid getting IP banned
+        session.close()
+print("Done.")
+
+writeToFile()
