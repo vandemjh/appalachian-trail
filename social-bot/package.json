@@ -1,0 +1,19 @@
+{
+  "name": "social-bot",
+  "version": "1.0.0",
+  "description": "Post to social media automatically",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.1.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vandemjh/appalachian-trail/tree/main/social-bot"
+  },
+  "author": "vandemjh",
+  "license": "ISC"
+}
