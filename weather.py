@@ -7,8 +7,11 @@ import time
 import datetime
 import os
 import random
+import sys
 
-DEBUG = True
+DEBUG = True if sys.argv[1] == "--debug" else False
+# Iterations to wait between writes to file
+PERIODIC_SAVE = 10
 
 alminac = "https://www.almanac.com/weather/history/zipcode/CODE/YEAR-MONTH-DAY"
 zipcodes = [
@@ -53,6 +56,8 @@ zipcodes = [
 
 
 def writeToFile(result: dict):
+    if DEBUG:
+        print("Writing to file")
     with open("out.json", "w") as f:
         f.write(json.dumps(result))
         f.close()
@@ -74,6 +79,7 @@ def getElementFloat(element: str, res: Response) -> float or None:
 
 
 result = {}
+periodicSaveCounter = 0
 
 MAX_DATE = datetime.datetime(2020, 1, 1)
 MIN_DATE = datetime.datetime(2015, 1, 1)
@@ -112,9 +118,11 @@ for zipcode in zipcodes:
 
             session = HTMLSession()
             res = session.get(link)
-            print("\tGet request took: " + str((date.now() - progressDateBefore)))
+            if DEBUG:
+                print("\tGet request took: " + str((date.now() - progressDateBefore)))
             res.html.render(timeout=100)
-            print("\tRender took: " + str((date.now() - progressDateBefore)))
+            if DEBUG:
+                print("\tRender took: " + str((date.now() - progressDateBefore)))
 
             mean = getElementFloat(
                 "#block-system-main > table.weatherhistory_results > tbody > tr.weatherhistory_results_datavalue.temp > td > p > span.value",
@@ -186,14 +194,15 @@ for zipcode in zipcodes:
             progress = progress + 1
             progressPercent = (progress / totalProgress) * 100
             progressDateDiff = date.now() - progressDateBefore
-            print("\tScrape took: " + str(date.now() - progressDateBefore))
+            if DEBUG:
+                print("\tScrape took: " + str(date.now() - progressDateBefore))
             with open("progress", "w") as file:
                 file.write(
                     "progress: "
                     + str(progressPercent)
                     + "\nLast scrape took: "
                     + str(progressDateDiff)
-                    + "\nCurrent date: "
+                    + "\nOn date: "
                     + str(date)
                     + "\n"
                 )
@@ -207,6 +216,11 @@ for zipcode in zipcodes:
             traceback.print_exc()
         finally:
             date = date + datetime.timedelta(days=1)
+            periodicSaveCounter = periodicSaveCounter + 1
+            if periodicSaveCounter > PERIODIC_SAVE:
+                writeToFile(result)
+                periodicSaveCounter = 0
+
 print("Done.")
 
 writeToFile(result)
