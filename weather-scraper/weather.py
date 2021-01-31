@@ -15,43 +15,43 @@ PERIODIC_SAVE = 10
 
 alminac = "https://www.almanac.com/weather/history/zipcode/CODE/YEAR-MONTH-DAY"
 zipcodes = [
-    "30513",
-    "30512",
-    "30545",
-    "28734",
-    "28713",
-    "28733",
-    "37753",
-    "28743",
-    "37650",
-    "37687",
-    "37658",
-    "24236",
-    "24311",
-    "24134",
-    "24077",
-    "24555",
-    "22980",
-    "22835",
-    "25425",
-    "17222",
-    "17020",
-    "19549",
-    "18327",
-    "07462",
-    "10911",
-    "06757",
-    "06068",
-    "01247",
-    "05255",
-    "05751",
-    "03755",
-    "03262",
-    "03581",
-    "04216",
-    "04982",
-    "04464",
-    "04462",
+    "30513",  # Springer Mtn
+    "30512",  # US Hwy 19
+    "30545",  # Helen GA 30545/Hiawassee GA 30546/SR 75
+    "28734",  # Franklin NC 28734/Winding Stair Gap TH/US Hwy 64
+    "28713",  # US Hwy 74
+    "28733",  # Fontana Dam NC 28733/Fontana Village Marina TH
+    "37753",  # Waterville School Road TH
+    "28743",  # Trail head parking in Hot Springs TH
+    "37650",  # Erwin TN 37650
+    "37687",  # Roan Mountain TN 37687/Elk Park NC 28622/SR 37
+    "37658",  # Hampton TN 37658
+    "24236",  # Damascus VA 24236
+    "24311",  # Atkins VA 24311
+    "24134",  # Pearisburg VA 24134/SR 100
+    "24077",  # Cloverdale VA 24077/Daleville VA 24083/US Hwy 220
+    "24555",  # Glasgow VA 24555/US 501 TH
+    "22980",  # Waynesboro VA 22980/I-64/I-64
+    "22835",  # US Hwy 211
+    "25425",  # Harpers Ferry WV 25425
+    "17222",  # Fayetteville PA 17222/US Hwy 30
+    "17020",  # Duncannon PA 17020
+    "19549",  # Port Clinton PA 19549/Port Clinton Ave TH
+    "18327",  # Delaware Water Gap PA 18327
+    "07462",  # Vernon NJ 07462/NJ 94 (Annex) TH/County Rd 515
+    "10911",  # Bear Mountain NY 10911/Peekskill NY 10566
+    "06757",  # Kent CT 06757
+    "06068",  # Salisbury CT 06068
+    "01247",  # North Adams MA 01247/Williamstown MA 01267/SR 2
+    "05255",  # Manchester Center VT 05255
+    "05751",  # Killington VT 05751
+    "03755",  # Hanover NH 03755
+    "03262",  # North Woodstock NH 03262/SR 112
+    "03581",  # Gorham NH 03581
+    "04216",  # Andover ME 04216
+    "04982",  # Stratton ME 04982/SR 16/SR 27
+    "04464",  # Monson ME 04464
+    "04462",  # Mt Katahdin
 ]
 
 
@@ -82,7 +82,7 @@ result = {}
 periodicSaveCounter = 0
 
 MAX_DATE = datetime.datetime(2020, 1, 1)
-MIN_DATE = datetime.datetime(2015, 1, 1)
+MIN_DATE = datetime.datetime(2019, 1, 1)
 totalProgress = len(zipcodes) * (MAX_DATE - MIN_DATE).days
 progress = 0
 
