@@ -9,7 +9,7 @@ import os
 import random
 import sys
 
-DEBUG = True if sys.argv[1] == "--debug" else False
+DEBUG = True if len(sys.argv) > 1 and sys.argv[1] == "--debug" else False
 # Iterations to wait between writes to file
 PERIODIC_SAVE = 10
 
