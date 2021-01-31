@@ -8,51 +8,19 @@ import datetime
 import os
 import random
 import sys
+from datetime import datetime
 
 DEBUG = True if len(sys.argv) > 1 and sys.argv[1] == "--debug" else False
 # Iterations to wait between writes to file
 PERIODIC_SAVE = 10
+# Prints temps to stdout for easy copy
+SIMPLE_PRINT = True
 
 alminac = "https://www.almanac.com/weather/history/zipcode/CODE/YEAR-MONTH-DAY"
-zipcodes = [
-    "30513",  # Springer Mtn
-    "30512",  # US Hwy 19
-    "30545",  # Helen GA 30545/Hiawassee GA 30546/SR 75
-    "28734",  # Franklin NC 28734/Winding Stair Gap TH/US Hwy 64
-    "28713",  # US Hwy 74
-    "28733",  # Fontana Dam NC 28733/Fontana Village Marina TH
-    "37753",  # Waterville School Road TH
-    "28743",  # Trail head parking in Hot Springs TH
-    "37650",  # Erwin TN 37650
-    "37687",  # Roan Mountain TN 37687/Elk Park NC 28622/SR 37
-    "37658",  # Hampton TN 37658
-    "24236",  # Damascus VA 24236
-    "24311",  # Atkins VA 24311
-    "24134",  # Pearisburg VA 24134/SR 100
-    "24077",  # Cloverdale VA 24077/Daleville VA 24083/US Hwy 220
-    "24555",  # Glasgow VA 24555/US 501 TH
-    "22980",  # Waynesboro VA 22980/I-64/I-64
-    "22835",  # US Hwy 211
-    "25425",  # Harpers Ferry WV 25425
-    "17222",  # Fayetteville PA 17222/US Hwy 30
-    "17020",  # Duncannon PA 17020
-    "19549",  # Port Clinton PA 19549/Port Clinton Ave TH
-    "18327",  # Delaware Water Gap PA 18327
-    "07462",  # Vernon NJ 07462/NJ 94 (Annex) TH/County Rd 515
-    "10911",  # Bear Mountain NY 10911/Peekskill NY 10566
-    "06757",  # Kent CT 06757
-    "06068",  # Salisbury CT 06068
-    "01247",  # North Adams MA 01247/Williamstown MA 01267/SR 2
-    "05255",  # Manchester Center VT 05255
-    "05751",  # Killington VT 05751
-    "03755",  # Hanover NH 03755
-    "03262",  # North Woodstock NH 03262/SR 112
-    "03581",  # Gorham NH 03581
-    "04216",  # Andover ME 04216
-    "04982",  # Stratton ME 04982/SR 16/SR 27
-    "04464",  # Monson ME 04464
-    "04462",  # Mt Katahdin
-]
+with open("location.json", "r") as f:
+    jsonFile: dict = json.loads(f.read())
+    zipcodes = list(jsonFile.keys())
+    dates = list(jsonFile.values())
 
 
 def writeToFile(result: dict):
@@ -78,13 +46,32 @@ def getElementFloat(element: str, res: Response) -> float or None:
         return None
 
 
+def writeProgress(progressPercent, progressDateDiff, date):
+    with open("progress", "w") as file:
+        file.write(
+            "progress: "
+            + str(progressPercent)
+            + "\nLast scrape took: "
+            + str(progressDateDiff)
+            + "\nOn date: "
+            + str(date)
+            + "\n"
+        )
+
+
 result = {}
 periodicSaveCounter = 0
 
-MAX_DATE = datetime.datetime(2020, 1, 1)
-MIN_DATE = datetime.datetime(2019, 1, 1)
-totalProgress = len(zipcodes) * (MAX_DATE - MIN_DATE).days
-progress = 0
+if not len(dates) == 0:
+    DATE_DIF = len(dates)
+    MAX_DATE = None
+    MIN_DATE = None
+else:
+    MAX_DATE = datetime.datetime(2020, 1, 1)
+    MIN_DATE = datetime.datetime(2019, 1, 1)
+    DATE_DIF = MAX_DATE - MIN_DATE
+dateCounter = 0
+DATES_GIVEN: bool = True if MAX_DATE is None else False
 
 
 for zipcode in zipcodes:
@@ -93,8 +80,12 @@ for zipcode in zipcodes:
     writeToFile(result)
     if not zipcode in result:
         result[zipcode] = {}
-    date = MIN_DATE
-    while date < MAX_DATE:
+    date = (
+        MIN_DATE
+        if not DATES_GIVEN
+        else datetime.strptime(dates[dateCounter], "%Y-%m-%d")
+    )
+    while (date < MAX_DATE) if not DATES_GIVEN else (True):
         year = int(date.year)
         month = int(date.month)
         day = int(date.day)
@@ -196,30 +187,41 @@ for zipcode in zipcodes:
             progressDateDiff = date.now() - progressDateBefore
             if DEBUG:
                 print("\tScrape took: " + str(date.now() - progressDateBefore))
-            with open("progress", "w") as file:
-                file.write(
-                    "progress: "
-                    + str(progressPercent)
-                    + "\nLast scrape took: "
-                    + str(progressDateDiff)
-                    + "\nOn date: "
-                    + str(date)
-                    + "\n"
-                )
-            time.sleep(0 + random.randint(0, 60))  # Sleep to avoid getting IP banned
+            writeProgress(progressPercent, progressDateDiff, date)
+            time.sleep(0 + random.randint(0, 30))  # Sleep to avoid getting IP banned
             session.close()
             if DEBUG:
                 print(result)
+            if SIMPLE_PRINT:
+                print(
+                    "At "
+                    + str(zipcode)
+                    + " on "
+                    + date.strftime("%Y-%m-%d")
+                    + " - min: "
+                    + str(minimum)
+                    + " average: "
+                    + str(mean)
+                    + " max: "
+                    + str(maximum)
+                )
         except Exception as e:
             print("Encountered error")
             result[zipcode][year][month][day]["error"] = str(e)
             traceback.print_exc()
         finally:
-            date = date + datetime.timedelta(days=1)
+            dateCounter = dateCounter + 1
+            date = (
+                (date + datetime.timedelta(days=1))
+                if not DATES_GIVEN
+                else datetime.strptime(dates[dateCounter - 1], "%Y-%m-%d")
+            )
             periodicSaveCounter = periodicSaveCounter + 1
             if periodicSaveCounter > PERIODIC_SAVE:
                 writeToFile(result)
                 periodicSaveCounter = 0
+            if DATES_GIVEN:
+                break
 
 print("Done.")
 
