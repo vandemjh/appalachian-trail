@@ -198,10 +198,10 @@ for zipcode in zipcodes:
                 print(result)
             if SIMPLE_PRINT:
                 print(
-                    ("At " + str(zipcode) + " on " + date.strftime("%Y-%m-%d"))
+                    ("At " + str(zipcode) + " on " + date.strftime("%Y-%m-%d") + " - ")
                     if DEBUG
                     else ""
-                    + " - min: "
+                    + "min: "
                     + str(minimum)
                     + " average: "
                     + str(mean)
