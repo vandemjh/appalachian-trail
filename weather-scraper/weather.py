@@ -15,6 +15,8 @@ DEBUG = True if len(sys.argv) > 1 and sys.argv[1] == "--debug" else False
 PERIODIC_SAVE = 10
 # Prints temps to stdout for easy copy
 SIMPLE_PRINT = True
+# Time to sleep to avoid being banned
+SLEEP = 0
 
 alminac = "https://www.almanac.com/weather/history/zipcode/CODE/YEAR-MONTH-DAY"
 with open("location.json", "r") as f:
@@ -69,7 +71,9 @@ if not len(dates) == 0:
 else:
     MAX_DATE = datetime.datetime(2020, 1, 1)
     MIN_DATE = datetime.datetime(2019, 1, 1)
-    DATE_DIF = MAX_DATE - MIN_DATE
+    DATE_DIF: int = MAX_DATE - MIN_DATE
+totalProgress = len(zipcodes) * DATE_DIF
+progress = 0
 dateCounter = 0
 DATES_GIVEN: bool = True if MAX_DATE is None else False
 
@@ -188,7 +192,7 @@ for zipcode in zipcodes:
             if DEBUG:
                 print("\tScrape took: " + str(date.now() - progressDateBefore))
             writeProgress(progressPercent, progressDateDiff, date)
-            time.sleep(0 + random.randint(0, 30))  # Sleep to avoid getting IP banned
+            time.sleep(SLEEP)  # Sleep to avoid getting IP banned
             session.close()
             if DEBUG:
                 print(result)
