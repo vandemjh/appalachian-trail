@@ -1,8 +1,9 @@
 import { Router } from 'express';
 const start: Router = Router();
+import auth from '../auth';
 
-export { start };
+export default start;
 
-start.get('/', (req, res) => {
-  // TODO:
+start.get('/', (_req, res) => {
+  res.redirect(auth);
 });

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const stop: Router = Router();
 
-export { stop };
+export default stop;
 
 stop.get('/', (req, res) => {
   // TODO:
