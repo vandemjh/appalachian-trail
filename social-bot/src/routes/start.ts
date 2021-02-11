@@ -1,8 +1,8 @@
 import { Router } from 'express';
-const Start: Router = Router();
+const start: Router = Router();
 
-export { Start };
+export { start };
 
-Start.get('/', (req, res) => {
+start.get('/', (req, res) => {
   // TODO:
 });
