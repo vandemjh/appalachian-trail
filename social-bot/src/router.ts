@@ -1,7 +1,7 @@
 import { Express } from 'express';
-import { stop } from './routes/stop';
-import { start } from './routes/start';
-import { callback } from './routes/callback';
+import stop from './routes/stop';
+import start from './routes/start';
+import callback from './routes/callback';
 
 export default function useRouter(app: Express): void {
   app.use('/stop', stop);
