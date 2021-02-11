@@ -1,7 +1,9 @@
 import express from 'express';
 import useRouter from './src/router';
+require('dotenv').config();
+
 const app = express();
-const port = 80; // default port to listen
+const port = process.env.PORT ?? 80;
 
 useRouter(app);
 
