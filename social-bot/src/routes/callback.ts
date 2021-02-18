@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getToken } from '../auth';
-import { setAlbum, signIn } from '../state';
+import { addPictures, signIn } from '../state';
 import getPhotos from '../request';
 import { album, setStatus } from '../state';
 
@@ -17,11 +17,18 @@ callback.get('/', async (req, res) => {
     if (!albumId?.[0]) throw new Error(`No album with name "${albumName}"!`);
     if (!albumId?.[0]?.id) throw new Error('Invalid or unsupplied album ID');
     else albumId = albumId?.[0]?.id;
-    setAlbum(
-      (await getPhotos(token, 'mediaItems:search', undefined, {
+    var tempAlbum = (await getPhotos(token, 'mediaItems:search', undefined, {
+      albumId: albumId,
+    })) as Album;
+
+    addPictures(tempAlbum.mediaItems);
+    while (tempAlbum.nextPageToken) {
+      tempAlbum = (await getPhotos(token, 'mediaItems:search', undefined, {
         albumId: albumId,
-      })) as Album,
-    );
+        pageToken: tempAlbum.nextPageToken,
+      })) as Album;
+      addPictures(tempAlbum.mediaItems);
+    }
     if (album) signIn();
   } catch (e) {
     res.send(e.message);
