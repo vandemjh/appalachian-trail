@@ -4,5 +4,5 @@ WORKDIR /serve
 COPY package.json /serve
 RUN npm install
 COPY . /serve
-EXPOSE 3000
+EXPOSE 80
 CMD ["npm", "start", "--prod"]
