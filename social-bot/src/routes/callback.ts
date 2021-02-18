@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getToken } from '../auth';
 import { setAlbum, signIn } from '../state';
 import getPhotos from '../request';
-import { album } from '../state';
+import { album, setStatus } from '../state';
 
 const callback: Router = Router();
 const albumName: string = process.env.ALBUM_NAME || 'Appalachian Trail';
@@ -23,11 +23,11 @@ callback.get('/', async (req, res) => {
       })) as Album,
     );
     if (album) signIn();
-    console.log(album);
   } catch (e) {
     res.send(e.message);
   }
-  res.send(album);
+  setStatus('album retreived');
+  res.redirect('/');
 });
 
 export default callback;
