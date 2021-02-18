@@ -8,7 +8,7 @@ export default async function getPhotos(
   body?: object,
 ): Promise<object> {
   const options = {
-    method: 'GET',
+    method: body ? 'POST' : 'GET',
     host: `photoslibrary.googleapis.com`,
     path: `/v1/${field + (id ? '/' + id : '')}?key=${process.env.API_KEY}`,
     headers: {
