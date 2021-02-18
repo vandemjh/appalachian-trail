@@ -15,23 +15,23 @@ export default async function getPhotos(
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
     },
-    body: body,
   };
 
   return new Promise((resolve, reject) => {
     var data: string = '';
-    https
-      .request(options, (resp) => {
-        resp.on('data', (chunk) => {
-          data += chunk;
-        });
-        resp.on('end', () => {
-          resolve(JSON.parse(data));
-        });
-        resp.on('error', (err) => {
-          reject(err);
-        });
-      })
-      .end();
+    let request = https.request(options, (resp) => {
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+      resp.on('end', () => {
+        resolve(JSON.parse(data));
+      });
+      resp.on('error', (err) => {
+        reject(err);
+      });
+    });
+    body
+      ? request.write(JSON.stringify(body), () => request.end())
+      : request.end();
   });
 }
