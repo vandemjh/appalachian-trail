@@ -1,3 +1,6 @@
+import { Media } from "./media";
+import { Metadata } from "./metadata";
+
 export class Picture implements Media {
   id: string;
   productUrl: string;

@@ -1,3 +1,4 @@
+import { Album } from './model/album';
 import { Picture } from './model/picture';
 
 var signedIn: boolean = false;

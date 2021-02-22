@@ -1,4 +1,4 @@
-interface Metadata {
+export interface Metadata {
   creationTime: string;
   width: string;
   height: string;

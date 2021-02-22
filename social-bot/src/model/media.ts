@@ -1,4 +1,6 @@
-interface Media {
+import { Metadata } from "./metadata";
+
+export interface Media {
   id: string;
   productUrl: string;
   baseUrl: string;
