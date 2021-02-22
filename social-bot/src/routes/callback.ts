@@ -12,6 +12,7 @@ callback.get('/', async (req, res) => {
   const token = await getToken(code);
   const data: any = await getPhotos(token, 'albums');
   try {
+    if (data.error) throw new Error(data.error.message);
     if (!data['albums']) throw new Error('No albums returned!');
     var albumId: any = data.albums.filter((v: any) => v.title === albumName);
     if (!albumId?.[0]) throw new Error(`No album with name "${albumName}"!`);
@@ -31,8 +32,10 @@ callback.get('/', async (req, res) => {
     }
     if (album) signIn();
   } catch (e) {
+    console.log(e);
     res.send(e.message);
   }
+  console.log(album);
   setStatus('album retreived');
   res.redirect('/');
 });

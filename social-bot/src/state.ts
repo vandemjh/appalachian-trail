@@ -1,3 +1,5 @@
+import { Picture } from './model/picture';
+
 var signedIn: boolean = false;
 var date: Date = new Date(0);
 var album: Album;
@@ -8,10 +10,8 @@ function signIn() {
   setStatus('signed in');
 }
 function addPictures(a: Picture[]) {
-  if (!album?.mediaItems) {
-    album = { mediaItems: [] };
-  }
-  album.mediaItems.push(...a);
+  if (!album?.mediaItems) album = { mediaItems: [] };
+  a.forEach((p) => album.mediaItems.push(new Picture(p)));
 }
 function setStatus(s: string) {
   status = s;
