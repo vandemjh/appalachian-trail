@@ -5,6 +5,7 @@ var signedIn: boolean = false;
 var date: Date = new Date(0);
 var album: Album;
 var status: string;
+var facebookPageAccessToken: string;
 
 function signIn() {
   signedIn = true;
@@ -17,5 +18,18 @@ function addPictures(a: Picture[]) {
 function setStatus(s: string) {
   status = s;
 }
+function setFacebookPageAccessToken(t: string) {
+  facebookPageAccessToken = t;
+}
 
-export { signedIn, signIn, date, album, addPictures, status, setStatus };
+export {
+  signedIn,
+  signIn,
+  date,
+  album,
+  addPictures,
+  status,
+  setStatus,
+  setFacebookPageAccessToken,
+  facebookPageAccessToken,
+};

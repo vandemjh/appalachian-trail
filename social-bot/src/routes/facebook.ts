@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import { request } from '../request';
+import {
+  facebookUser,
+  setFacebookPageAccessToken,
+  setFacebookUser,
+} from '../state';
 const facebook: Router = Router();
 
 export default facebook;
@@ -34,19 +39,16 @@ facebook.get('/', async (req, res) => {
     if (!(longLivedToken as any)?.access_token)
       throw new Error('No long lived token supplied!');
     longLivedToken = (longLivedToken as any).access_token;
-    var userId = await request(
-      'GET',
-      'graph.facebook.com',
-      `/me?fields=id,name&access_token=${longLivedToken}`,
-    );
-    console.log(userId);
-    longLivedToken = (longLivedToken as any).access_token;
     var pageToken = await request(
       'GET',
       'graph.facebook.com',
-      `/v9.0/${process.env.FACEBOOK_PAGE_ID}/accounts?access_token=${longLivedToken}`,
+      `/v9.0/${process.env.FACEBOOK_PAGE_ID}?fields=access_token&access_token=${longLivedToken}`,
     );
-    res.send(pageToken);
+    if (!(pageToken as any)?.access_token)
+      throw new Error('No page token supplied!');
+    var pageAccessToken: string = (pageToken as any).access_token;
+    setFacebookPageAccessToken(pageAccessToken);
+    res.send('success');
   } catch (e) {
     console.log(e);
     res.send(e.message);
