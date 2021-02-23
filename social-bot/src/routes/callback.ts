@@ -43,13 +43,13 @@ callback.get('/', async (req, res) => {
       addPictures(tempAlbum.mediaItems);
     }
     if (album) signIn();
+    setStatus('album retreived');
+    
+    start();
   } catch (e) {
     console.log(e);
     res.send(e.message);
   }
-  setStatus('album retreived');
-  start();
-  res.redirect('/');
 });
 
 export default callback;

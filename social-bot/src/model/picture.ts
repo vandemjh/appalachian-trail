@@ -1,5 +1,5 @@
-import { Media } from "./media";
-import { Metadata } from "./metadata";
+import { Media } from './media';
+import { Metadata } from './metadata';
 
 export class Picture implements Media {
   id: string;
@@ -10,6 +10,7 @@ export class Picture implements Media {
   filename: object;
   fullSizeUrl: string;
   downloadUrl: string;
+  postedToFB: boolean;
   constructor(obj: any) {
     this.id = obj.id;
     this.productUrl = obj.productUrl;
@@ -21,5 +22,6 @@ export class Picture implements Media {
       this.baseUrl +
       `=w${this.mediaMetadata.width}-h${this.mediaMetadata.height}`;
     this.downloadUrl = this.baseUrl + `=d`;
+    this.postedToFB = false;
   }
 }
