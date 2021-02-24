@@ -1,17 +1,16 @@
 import { Router } from 'express';
-import { getToken } from '../auth';
-import { addPictures, signIn } from '../state';
+import { facebookSigninUrl, getTokenFromCode } from '../auth';
+import { setAlbum, signIn, updateStatus } from '../state';
 import { googlePhotosRequest } from '../request';
-import { album, setStatus } from '../state';
+import { album } from '../state';
 import { Album } from '../model/album';
-import start from '../loop';
 
 const callback: Router = Router();
 const albumName: string = process.env.ALBUM_NAME || 'Appalachian Trail';
 
 callback.get('/', async (req, res) => {
   const code: string = req.query.code as string;
-  const token = await getToken(code);
+  const token = await getTokenFromCode(code);
   const data: any = await googlePhotosRequest(token, 'albums');
   try {
     if (data.error) throw new Error(data.error.message);
@@ -20,6 +19,8 @@ callback.get('/', async (req, res) => {
     if (!albumId?.[0]) throw new Error(`No album with name "${albumName}"!`);
     if (!albumId?.[0]?.id) throw new Error('Invalid or unsupplied album ID');
     else albumId = albumId?.[0]?.id;
+    setAlbum(albumId);
+    updateStatus('Signed into Google');
     var tempAlbum = (await googlePhotosRequest(
       token,
       'mediaItems:search',
@@ -29,7 +30,7 @@ callback.get('/', async (req, res) => {
       },
     )) as Album;
 
-    addPictures(tempAlbum.mediaItems);
+    album.addPictures(tempAlbum.mediaItems);
     while (tempAlbum.nextPageToken) {
       tempAlbum = (await googlePhotosRequest(
         token,
@@ -40,12 +41,11 @@ callback.get('/', async (req, res) => {
           pageToken: tempAlbum.nextPageToken,
         },
       )) as Album;
-      addPictures(tempAlbum.mediaItems);
+      album.addPictures(tempAlbum.mediaItems);
     }
     if (album) signIn();
-    setStatus('album retreived');
-    
-    start();
+    updateStatus('Album retreived');
+    res.redirect(facebookSigninUrl);
   } catch (e) {
     console.log(e);
     res.send(e.message);

@@ -4,7 +4,7 @@ require('dotenv').config();
 
 export async function googlePhotosRequest(
   token: string,
-  field: 'albums' | 'mediaItems' | 'mediaItems:search',
+  field: 'albums' | 'mediaItems' | 'mediaItems:search' | 'mediaItems:batchGet',
   id?: string,
   body?: object,
 ): Promise<Album> {
