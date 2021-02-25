@@ -1,10 +1,16 @@
 import { Router } from 'express';
 import start from '../loop';
-import { request } from '../request';
-import { setFacebookPageAccessToken, updateStatus } from '../state';
+import request from '../request';
+import {
+  facebookPageAccessToken,
+  setFacebookPageAccessToken,
+  updateStatus,
+} from '../state';
 const facebook: Router = Router();
 
 export default facebook;
+
+export const validFacebookMimeTypes = ['jpeg', 'bmp', 'png', 'gif', 'tiff'];
 
 facebook.get('/', async (req, res) => {
   try {
@@ -45,6 +51,13 @@ facebook.get('/', async (req, res) => {
     var pageAccessToken: string = (pageToken as any).access_token;
     setFacebookPageAccessToken(pageAccessToken);
     updateStatus('Facebook page token retreived');
+    var verified: any = await request(
+      'GET',
+      'graph.facebook.com',
+      `/v9.0/me?fields=id&access_token=${longLivedToken}`,
+    );
+    if (!verified?.error) updateStatus('Verified validity of FB token');
+    else throw new Error(verified.error.message);
     start();
     res.redirect('/');
   } catch (e) {
@@ -54,17 +67,44 @@ facebook.get('/', async (req, res) => {
 });
 
 export async function postPicture(
-  accessToken: string,
   url: string,
+  accessToken: string,
   published?: boolean,
 ): Promise<string> {
   return new Promise((res, rej) =>
-    request('POST', 'graph.facebook.com', '/me/photos', undefined, undefined, {
-      url: url,
-      published: published,
-      access_token: accessToken,
-    })
-      .catch((e) => rej(e))
-      .then((r) => res((r as any).id)),
+    request(
+      'POST',
+      'graph.facebook.com',
+      `/me/photos?` +
+        `url=${url}` +
+        `&published=${published}` +
+        `&access_token=${accessToken}`,
+    )
+      .then((r: any) => {
+        if (r?.error) rej(r);
+        res((r as any).id);
+      })
+      .catch((e: any) => rej(e)),
+  );
+}
+
+export async function postMultiPhoto(message: string, ids: Array<string>) {
+  var toPost: object[] = [];
+  ids.map((i) => {
+    toPost.push({ media_fbid: i });
+  });
+  return new Promise((res, rej) =>
+    request(
+      'POST',
+      'graph.facebook.com',
+      `/me/feed?message=${message}&attached_media=${JSON.stringify(
+        toPost,
+      )}&access_token=${facebookPageAccessToken}`,
+    )
+      .then((ret: any) => {
+        if (ret?.error) rej(ret);
+        res(ret);
+      })
+      .catch((e) => rej(e)),
   );
 }

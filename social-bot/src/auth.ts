@@ -30,10 +30,12 @@ export async function getTokenFromCode(code: string): Promise<string> {
   oauth2Client.setCredentials(tokens);
   oauth2Client.on('tokens', (tokens) => {
     if (tokens.refresh_token) {
-      console.log('New refresh token' + tokens.refresh_token);
+      console.log('New refresh token');
     }
-    console.log('New access token' + tokens.access_token);
+    console.log('New access token');
+    setToken(tokens.access_token as string);
   });
+  setToken(tokens.access_token as string);
   return tokens.access_token as string;
 }
 

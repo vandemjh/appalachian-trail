@@ -4,10 +4,10 @@ require('dotenv').config();
 
 export async function googlePhotosRequest(
   token: string,
-  field: 'albums' | 'mediaItems' | 'mediaItems:search' | 'mediaItems:batchGet',
+  field: 'albums' | 'mediaItems' | 'mediaItems:search' | 'mediaItems:batchGet' | string,
   id?: string,
   body?: object,
-): Promise<Album> {
+): Promise<object> {
   const options = {
     method: body ? 'POST' : 'GET',
     host: `photoslibrary.googleapis.com`,
@@ -71,11 +71,11 @@ export async function facebookRequest(
   });
 }
 
-export async function request(
+export default async function request(
   method: 'POST' | 'GET',
   host: string,
   path: string,
-  port?: 80 | 443,
+  port?: 80 | 443 | number,
   headers?: {
     Authorization?: string;
     Accept?: string;
@@ -84,9 +84,9 @@ export async function request(
 ): Promise<object> {
   const options = {
     method: method,
-    host: host,
+    host: encodeURI(host),
     port: port,
-    path: path,
+    path: encodeURI(path),
     headers: headers,
   };
 
