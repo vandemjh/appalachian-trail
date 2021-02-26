@@ -14,7 +14,7 @@ export default function start() {
       .getPictures()
       .then(() => {
         album.refreshUnpostedUrls();
-        var mediaItemsNotPosted = album.mediaItems.filter(
+        var mediaItemsNotPosted: Picture[] = album.mediaItems.filter(
           (p) =>
             !p?.postedToFB &&
             validFacebookMimeTypes.filter((m) => p?.mimeType.includes(m))
@@ -25,6 +25,7 @@ export default function start() {
             mediaItemsNotPosted.forEach((pic) => {
               postPicture(pic.fullSizeUrl, facebookPageAccessToken, false)
                 .then((id) => {
+                  pic.fbId = id;
                   updateStatus('Posted to FB: ' + id);
                   ids.push(id);
                   if (ids.length == mediaItemsNotPosted.length) res(ids);
@@ -37,26 +38,49 @@ export default function start() {
           );
         post().then(() => {
           if (ids.length > 0) {
-            postMultiPhoto(
-              new Date(
-                mediaItemsNotPosted[0].mediaMetadata.creationTime,
-              ).toLocaleString(),
-              ids,
-            )
-              .then((i: any) => {
-                if (i?.id)
-                  updateStatus('Posted multiphoto post to FB: ' + i.id);
-                else console.log(i);
-              })
-              .catch((e) => console.log(e));
-            album.mediaItems.forEach((e) =>
-              mediaItemsNotPosted.forEach((i) =>
-                e?.id === i?.id ? (e.postedToFB = true) : null,
-              ),
+            var dates = mediaItemsNotPosted
+              .map((p) => p.mediaMetadata.creationTime)
+              .sort((a, b) => b?.getTime() - a?.getTime());
+            var datesByDay: object = {};
+            dates.forEach(
+              (d: Date) =>
+                ((datesByDay as any)[d.toLocaleDateString('en-US')] = []),
             );
+            mediaItemsNotPosted.forEach((m) =>
+              (datesByDay as any)[
+                m.mediaMetadata.creationTime.toLocaleDateString('en-US')
+              ].push(m),
+            );
+            var promises: Promise<object>[] = [];
+            Object.keys(datesByDay).forEach((e) => {
+              promises.push(
+                new Promise((res, rej) => {
+                  postMultiPhoto(
+                    e,
+                    (datesByDay as any)[e].map((m: Picture) => m.fbId),
+                  )
+                    .then((i: any) => {
+                      if (i?.id) res(i.id);
+                      else rej(i);
+                    })
+                    .catch((e) => console.log(e));
+                }),
+              );
+            });
+            (async (p: Promise<object>[]) => {
+              for (let pr of p)
+                updateStatus(`Posted multiphoto post to FB: ${await pr}`);
+            })(promises).then(() => {
+              album.mediaItems.forEach((el) =>
+                mediaItemsNotPosted.forEach((ele) =>
+                  el?.id === ele?.id ? (el.postedToFB = true) : null,
+                ),
+              );
+            });
           }
         });
       })
+      .then(() => album.writeFile())
       .catch((e) => console.log(e));
   }, parseInt(process.env.INTERVAL as string) * 1000);
 }

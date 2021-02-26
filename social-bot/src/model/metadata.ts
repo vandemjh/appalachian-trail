@@ -1,5 +1,5 @@
-export interface Metadata {
-  creationTime: string;
+export class Metadata {
+  creationTime: Date;
   width: string;
   height: string;
   photo: {
@@ -9,4 +9,10 @@ export interface Metadata {
     apertureFNumber: number;
     isoEquivalent: number;
   };
+  constructor(obj: any) {
+    this.creationTime = new Date(obj.creationTime);
+    this.width = obj.width;
+    this.height = obj.height;
+    this.photo = obj.photo;
+  }
 }

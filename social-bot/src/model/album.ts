@@ -13,7 +13,7 @@ export class Album {
       if (!err)
         readFile(filePath, 'utf8', (err: any, data: any) => {
           if (!err) {
-            this.mediaItems = JSON.parse(data);
+            this.addPictures(JSON.parse(data));
             updateStatus(`Imported ${this.mediaItems.length} ids from file: `);
           } else {
             console.log(err);
@@ -43,7 +43,7 @@ export class Album {
                 try {
                   if (p?.mediaItem?.id === i.id) i = new Picture(p.mediaItem);
                 } catch (e) {
-                  console.log(p);
+                  console.log(e);
                 }
               });
             });
@@ -66,6 +66,8 @@ export class Album {
         ? this.mediaItems.push(new Picture(p))
         : null;
     });
+  }
+  public writeFile() {
     writeFile(filePath, JSON.stringify(this.mediaItems), (err) => {
       if (err) console.log(err);
     });
