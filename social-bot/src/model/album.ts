@@ -27,7 +27,11 @@ export class Album {
               throw new Error('No mediaItemResults returned!');
             (a as any).mediaItemResults.forEach((p: any) => {
               this.mediaItems.forEach((i) => {
-                if (p?.mediaItem?.id === i?.id) i = new Picture(p.mediaItem);
+                try {
+                  if (p?.mediaItem?.id === i.id) i = new Picture(p.mediaItem);
+                } catch (e) {
+                  console.log(p);
+                }
               });
             });
           })
@@ -44,6 +48,36 @@ export class Album {
     }
   }
   addPictures(pics: Picture[]) {
-    pics.forEach((p) => this.mediaItems.push(new Picture(p)));
+    pics.forEach((p) => {
+      p?.id && !this.mediaItems.some((s) => p?.id === s?.id)
+        ? this.mediaItems.push(new Picture(p))
+        : null;
+    });
+  }
+  public async getPictures() {
+    var picsToAdd: Picture[] = [];
+    var tempAlbum = (await googlePhotosRequest(
+      token,
+      'mediaItems:search',
+      undefined,
+      {
+        albumId: this.id,
+      },
+    )) as Album;
+
+    picsToAdd.push(...tempAlbum.mediaItems);
+    while (tempAlbum.nextPageToken) {
+      tempAlbum = (await googlePhotosRequest(
+        token,
+        'mediaItems:search',
+        undefined,
+        {
+          albumId: this.id,
+          pageToken: tempAlbum.nextPageToken,
+        },
+      )) as Album;
+      picsToAdd.push(...tempAlbum.mediaItems);
+    }
+    this.addPictures(picsToAdd);
   }
 }

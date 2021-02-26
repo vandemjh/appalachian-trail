@@ -21,28 +21,7 @@ callback.get('/', async (req, res) => {
     else albumId = albumId?.[0]?.id;
     setAlbum(albumId);
     updateStatus('Signed into Google');
-    var tempAlbum = (await googlePhotosRequest(
-      token,
-      'mediaItems:search',
-      undefined,
-      {
-        albumId: albumId,
-      },
-    )) as Album;
-
-    album.addPictures(tempAlbum.mediaItems);
-    while (tempAlbum.nextPageToken) {
-      tempAlbum = (await googlePhotosRequest(
-        token,
-        'mediaItems:search',
-        undefined,
-        {
-          albumId: albumId,
-          pageToken: tempAlbum.nextPageToken,
-        },
-      )) as Album;
-      album.addPictures(tempAlbum.mediaItems);
-    }
+    await album.getPictures()
     if (album) signIn();
     updateStatus('Album retreived');
     res.redirect(facebookSigninUrl);
