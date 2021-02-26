@@ -1,5 +1,4 @@
 import { Album } from './model/album';
-import { Picture } from './model/picture';
 
 var signedIn: boolean = false;
 var date: Date = new Date(0);
@@ -21,6 +20,7 @@ function updateStatus(s: string) {
 function setFacebookPageAccessToken(t: string) {
   facebookPageAccessToken = t;
 }
+export const filePath = process.env.FILE_PATH || './pictures.json';
 
 export {
   signedIn,

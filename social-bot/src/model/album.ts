@@ -1,12 +1,25 @@
-import oauth2Client, { token } from '../auth';
+import { token } from '../auth';
 import { googlePhotosRequest } from '../request';
 import { Picture } from './picture';
+import { writeFile, readFile, access, constants } from 'fs';
+import { filePath, updateStatus } from '../state';
 
 export class Album {
   id: string;
   mediaItems: Array<Picture>;
   nextPageToken?: string;
   constructor(id: string) {
+    access(filePath, constants.F_OK, (err) => {
+      if (!err)
+        readFile(filePath, 'utf8', (err: any, data: any) => {
+          if (!err) {
+            this.mediaItems = JSON.parse(data);
+            updateStatus(`Imported ${this.mediaItems.length} ids from file: `);
+          } else {
+            console.log(err);
+          }
+        });
+    });
     this.id = id;
     this.mediaItems = [];
   }
@@ -52,6 +65,9 @@ export class Album {
       p?.id && !this.mediaItems.some((s) => p?.id === s?.id)
         ? this.mediaItems.push(new Picture(p))
         : null;
+    });
+    writeFile(filePath, JSON.stringify(this.mediaItems), (err) => {
+      if (err) console.log(err);
     });
   }
   public async getPictures() {
