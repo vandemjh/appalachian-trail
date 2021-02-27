@@ -16,7 +16,7 @@ export class Album {
             this.addPictures(JSON.parse(data));
             updateStatus(`Imported ${this.mediaItems.length} ids from file: `);
           } else {
-            console.log(err);
+            updateStatus(err.toString());
           }
         });
     });
@@ -43,12 +43,12 @@ export class Album {
                 try {
                   if (p?.mediaItem?.id === i.id) i = new Picture(p.mediaItem);
                 } catch (e) {
-                  console.log(e);
+                  updateStatus(e.toString());
                 }
               });
             });
           })
-          .catch((e) => console.log(e));
+          .catch((e) => updateStatus(e.toString()));
     };
     if (r.length > 80) {
       var i: number,
@@ -69,7 +69,7 @@ export class Album {
   }
   public writeFile() {
     writeFile(filePath, JSON.stringify(this.mediaItems), (err) => {
-      if (err) console.log(err);
+      if (err) updateStatus(err.toString());
     });
   }
   public async getPictures() {

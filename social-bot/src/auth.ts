@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { updateStatus } from './state';
 require('dotenv').config();
 
 const facebookSigninUrl =
@@ -30,9 +31,9 @@ export async function getTokenFromCode(code: string): Promise<string> {
   oauth2Client.setCredentials(tokens);
   oauth2Client.on('tokens', (tokens) => {
     if (tokens.refresh_token) {
-      console.log('New refresh token');
+      updateStatus('New refresh token');
     }
-    console.log('New access token');
+    updateStatus('New access token');
     setToken(tokens.access_token as string);
   });
   setToken(tokens.access_token as string);

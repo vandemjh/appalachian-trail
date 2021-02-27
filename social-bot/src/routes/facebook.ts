@@ -61,7 +61,7 @@ facebook.get('/', async (req, res) => {
     start();
     res.redirect('/');
   } catch (e) {
-    console.log(e);
+    updateStatus(e.toString());
     res.send(e.message);
   }
 });

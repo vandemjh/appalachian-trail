@@ -30,7 +30,7 @@ export default function start() {
                   if (ids.length == mediaItemsNotPosted.length) res(ids);
                 })
                 .catch((e) => {
-                  console.log(e);
+                  updateStatus(e.toString());
                   rej(e);
                 });
             }),
@@ -62,7 +62,7 @@ export default function start() {
                       if (i?.id) res(i.id);
                       else rej(i);
                     })
-                    .catch((e) => console.log(e));
+                    .catch((e) => updateStatus(e.toString()));
                 }),
               );
             });
@@ -80,6 +80,6 @@ export default function start() {
         });
       })
       .then(() => album.writeFile())
-      .catch((e) => console.log(e));
+      .catch((e) => updateStatus(e.toString()));
   }, parseInt(process.env.INTERVAL as string) * 1000);
 }
