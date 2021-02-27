@@ -4,8 +4,9 @@
 
 - [About](#about)
 - [Getting Started](#getting_started)
-- [Usage](#usage)
-- [Contributing](../CONTRIBUTING.md)
+- [Prerequisites](#prerequisites)
+- [Running](#running)
+- [Deployment](#deployment)
 
 ## About <a name = "about"></a>
 
@@ -15,19 +16,19 @@ A mess of callback functions to repost Google Photos uploads to Facebook
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
-### Prerequisites
+### Prerequisites <a name = "prerequisites"></a>
 
 1. Either Docker or npm
-2. [Google Photos](https://console.developers.google.com/apis/api/photoslibrary.googleapis.com) credentials and Google API key
+2. A [Google Photos](https://console.developers.google.com/apis/api/photoslibrary.googleapis.com) credentials and Google API key
 3. A [Facebook API key](https://developers.facebook.com/docs/facebook-login/access-tokens/)
 
-### Installing
+### Running <a name = "running"></a>
 
 Create a .env file in the project root with:
 
 ```
-INTERVAL=
-PORT=
+INTERVAL= #Interval to refresh google photos album
+PORT= #Port to run the server
 # Google settings
 CLIENT_ID=
 CLIENT_SECRET=
@@ -49,8 +50,10 @@ ALBUM_NAME= #Album name to pull from Google Photos
 Building from Docker:
 
 ```
-docker run -p 8080:8080 `docker build . -q`
+docker run -p {port}:{port} `docker build . -q`
 ```
+
+Where port is the port specified in the `.env` file.
 
 Running using npm:
 
@@ -59,3 +62,11 @@ npm start
 ```
 
 Go to `http://localhost:(port)` to authenticate with Google and then Facebook
+
+### Deployment
+
+Best to use Docker
+
+```
+sudo docker run -p 80:80 --restart=on-failure `docker build . -q`
+```
