@@ -16,8 +16,8 @@
     "@types/passport-google-oauth20": "^2.0.6"
   },
   "scripts": {
-    "build": "tsc",
-    "prestart": "tsc",
+    "build": "npx tsc",
+    "prestart": "npx tsc",
     "start": "node dist/index.js",
     "watch": "npm run build -- -w",
     "test": "echo \"Error: no test specified\" && exit 1"
