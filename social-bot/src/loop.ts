@@ -1,5 +1,4 @@
 import { Picture } from './model/picture';
-import request from './request';
 import {
   postMultiPhoto,
   postPicture,

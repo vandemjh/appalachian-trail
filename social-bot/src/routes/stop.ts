@@ -4,5 +4,5 @@ const stop: Router = Router();
 export default stop;
 
 stop.get('/', (req, res) => {
-  // TODO:
+  process.exit(1);
 });
