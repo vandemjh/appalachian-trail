@@ -1,6 +1,6 @@
 docker run -d \
     --name social-bot \
     --restart=on-failure \
-    -p 80:80 \
-    -v `pwd`:/serve \
+    -p 443:443 \
+    -v `pwd`:/serve/pictures.json \
     `docker build . -q`
