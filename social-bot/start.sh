@@ -1,3 +1,4 @@
+touch pictures.json
 docker run -d \
     --name social-bot \
     --restart=on-failure \
