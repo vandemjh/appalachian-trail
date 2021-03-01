@@ -6,10 +6,8 @@ import http from 'http';
 require('dotenv').config();
 
 const options = {
-  key: fs.readFileSync(
-    `/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`,
-  ),
-  cert: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/cert.pem`),
+  key: fs.readFileSync(process.env.KEY_PATH ?? "privkey.pem"),
+  cert: fs.readFileSync(process.env.CERT_PATH ?? "cert.pem"),
 };
 
 const app = express();
