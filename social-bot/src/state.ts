@@ -15,6 +15,7 @@ function setAlbum(id: string) {
 }
 
 function updateStatus(s: string) {
+  console.log(s);
   status += '\n' + s;
 }
 function setFacebookPageAccessToken(t: string) {

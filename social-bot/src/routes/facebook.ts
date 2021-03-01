@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import start from '../loop';
+import { Picture } from '../model/picture';
 import request from '../request';
 import {
   facebookPageAccessToken,
@@ -88,18 +89,22 @@ export async function postPicture(
   );
 }
 
-export async function postMultiPhoto(message: string, ids: Array<string>) {
-  var toPost: object[] = [];
-  ids.map((i) => {
-    toPost.push({ media_fbid: i });
-  });
+export async function postMultiPhoto(
+  message: string,
+  ids: Array<string>,
+  published?: boolean,
+  scheduledPublishTime?: Date,
+) {
   return new Promise((res, rej) =>
     request(
       'POST',
       'graph.facebook.com',
       `/me/feed?message=${message}&attached_media=${JSON.stringify(
-        toPost,
-      )}&access_token=${facebookPageAccessToken}`,
+        ids.map((i) => ({ media_fbid: i })),
+      )}` + published && scheduledPublishTime
+        ? ''
+        : `&published=${published}&scheduled_publish_time=${scheduledPublishTime?.getTime()}` +
+            `&access_token=${facebookPageAccessToken}`,
     )
       .then((ret: any) => {
         if (ret?.error) rej(ret);

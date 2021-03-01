@@ -54,9 +54,14 @@ export default function start() {
             Object.keys(datesByDay).forEach((e) => {
               promises.push(
                 new Promise((res, rej) => {
+                  var d = new Date();
+                  d.setMinutes(d.getMinutes() + 30);
+                  d.setMinutes(0, 0, 0);
                   postMultiPhoto(
                     e,
                     (datesByDay as any)[e].map((m: Picture) => m.fbId),
+                    false,
+                    d,
                   )
                     .then((i: any) => {
                       if (i?.id) res(i.id);
@@ -81,5 +86,5 @@ export default function start() {
       })
       .then(() => album.writeFile())
       .catch((e) => updateStatus(e.toString()));
-  }, parseInt(process.env.INTERVAL as string) * 1000);
+  }, parseInt(process.env.INTERVAL as string) * 1000 * 60);
 }
