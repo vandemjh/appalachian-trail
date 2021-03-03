@@ -68,7 +68,7 @@ facebook.get('/', async (req, res) => {
 });
 
 export async function postPicture(
-  url: string,
+  picture: Picture,
   accessToken: string,
   published?: boolean,
 ): Promise<string> {
@@ -76,10 +76,9 @@ export async function postPicture(
     request(
       'POST',
       'graph.facebook.com',
-      `/me/photos?` +
-        `url=${url}` +
-        `&published=${published}` +
-        `&access_token=${accessToken}`,
+      `/me/photos?` + `url=${picture.fullSizeUrl}` + picture.description
+        ? `&caption=${picture.description}`
+        : '' + `&published=${published}` + `&access_token=${accessToken}`,
     )
       .then((r: any) => {
         if (r?.error) rej(r);

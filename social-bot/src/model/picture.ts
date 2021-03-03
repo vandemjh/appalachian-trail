@@ -12,6 +12,7 @@ export class Picture implements Media {
   downloadUrl: string;
   postedToFB: boolean;
   fbId: string | undefined;
+  description?: string;
   constructor(obj: any) {
     this.id = obj.id;
     this.productUrl = obj.productUrl;
@@ -23,6 +24,7 @@ export class Picture implements Media {
       this.baseUrl +
       `=w${this.mediaMetadata.width}-h${this.mediaMetadata.height}`;
     this.downloadUrl = this.baseUrl + `=d`;
+    this.description = obj?.description;
     this.postedToFB = false;
     this.fbId = undefined;
   }

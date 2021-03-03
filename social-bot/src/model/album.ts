@@ -13,8 +13,12 @@ export class Album {
       if (!err)
         readFile(filePath, 'utf8', (err: any, data: any) => {
           if (!err) {
-            this.addPictures(JSON.parse(data));
-            updateStatus(`Imported ${this.mediaItems.length} ids from file: `);
+            if (data !== '') {
+              this.addPictures(JSON.parse(data));
+              updateStatus(
+                `Imported ${this.mediaItems.length} ids from file: `,
+              );
+            }
           } else {
             updateStatus(err.toString());
           }

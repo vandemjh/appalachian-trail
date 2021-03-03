@@ -22,7 +22,7 @@ export default function start() {
         const post = async () =>
           new Promise((res, rej) =>
             mediaItemsNotPosted.forEach((pic) => {
-              postPicture(pic.fullSizeUrl, facebookPageAccessToken, false)
+              postPicture(pic, facebookPageAccessToken, false)
                 .then((id) => {
                   pic.fbId = id;
                   updateStatus('Posted to FB: ' + id);
