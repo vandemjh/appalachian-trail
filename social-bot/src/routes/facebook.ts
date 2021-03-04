@@ -62,7 +62,7 @@ facebook.get('/', async (req, res) => {
     start();
     res.redirect('/');
   } catch (e) {
-    updateStatus(e.toString());
+    updateStatus(e);
     res.send(e.message);
   }
 });
@@ -113,4 +113,37 @@ export async function postMultiPhoto(
       })
       .catch((e) => rej(e)),
   );
+}
+
+export async function postAlbum(
+  albumName: string,
+  pictures: Array<Picture>,
+  published?: boolean,
+  scheduledPublishTime?: Date,
+) {
+  return new Promise(async (res, rej) => {
+    var albumId = await request(
+      'POST',
+      'graph.facebook.com',
+      `/me/albums?name=${albumName}&access_token=${facebookPageAccessToken}`,
+    );
+    if ((albumId as any)?.error) rej(albumId);
+    albumId = (albumId as any).id;
+    pictures.forEach((pic) =>
+      request(
+        'POST',
+        'graph.facebook.com',
+        `/${albumId}/photos?caption=${albumName}&url=${pic.fullSizeUrl}` +
+          (!published && scheduledPublishTime
+            ? `&published=${published}&scheduled_publish_time=${scheduledPublishTime?.getTime()}`
+            : '') +
+          `&access_token=${facebookPageAccessToken}`,
+      )
+        .then((ret: any) => {
+          if (ret?.error) rej(ret);
+          res(ret);
+        })
+        .catch((e) => rej(e)),
+    );
+  });
 }

@@ -20,7 +20,7 @@ export class Album {
               );
             }
           } else {
-            updateStatus(err.toString());
+            updateStatus(err);
           }
         });
     });
@@ -47,12 +47,12 @@ export class Album {
                 try {
                   if (p?.mediaItem?.id === i.id) i = new Picture(p.mediaItem);
                 } catch (e) {
-                  updateStatus(e.toString());
+                  updateStatus(e);
                 }
               });
             });
           })
-          .catch((e) => updateStatus(e.toString()));
+          .catch((e) => updateStatus(e));
     };
     if (r.length > 80) {
       var i: number,
@@ -73,7 +73,7 @@ export class Album {
   }
   public writeFile() {
     writeFile(filePath, JSON.stringify(this.mediaItems), (err) => {
-      if (err) updateStatus(err.toString());
+      if (err) updateStatus(err);
     });
   }
   public async getPictures() {

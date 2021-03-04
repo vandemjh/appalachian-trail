@@ -106,9 +106,12 @@ export default async function request(
         });
         resp.on('end', () => {
           try {
+            console.log(data);
             let json = JSON.parse(data);
+            if (json?.error) reject(json);
             resolve(json);
           } catch (e) {
+            console.log(data);
             reject(e);
           }
         });

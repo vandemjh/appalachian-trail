@@ -26,7 +26,7 @@ callback.get('/', async (req, res) => {
     updateStatus('Album retreived');
     res.redirect(facebookSigninUrl);
   } catch (e) {
-    updateStatus(e.toString());
+    updateStatus(e);
     res.send(e.message);
   }
 });
