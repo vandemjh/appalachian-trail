@@ -109,7 +109,6 @@ export default async function request(
             let json = JSON.parse(data);
             resolve(json);
           } catch (e) {
-            console.log(data);
             reject(e);
           }
         });
