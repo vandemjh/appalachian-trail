@@ -76,9 +76,11 @@ export async function postPicture(
     request(
       'POST',
       'graph.facebook.com',
-      `/me/photos?` + `url=${picture.fullSizeUrl}` + picture.description
-        ? `&caption=${picture.description}`
-        : '' + `&published=${published}` + `&access_token=${accessToken}`,
+      `/me/photos?` +
+        `url=${picture.fullSizeUrl}` +
+        (picture.description ? `&caption=${picture.description}` : '') +
+        `&published=${published}` +
+        `&access_token=${accessToken}`,
     )
       .then((r: any) => {
         if (r?.error) rej(r);
