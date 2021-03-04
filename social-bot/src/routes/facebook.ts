@@ -102,10 +102,11 @@ export async function postMultiPhoto(
       'graph.facebook.com',
       `/me/feed?message=${message}&attached_media=${JSON.stringify(
         ids.map((i) => ({ media_fbid: i })),
-      )}` + published && scheduledPublishTime
-        ? ''
-        : `&published=${published}&scheduled_publish_time=${scheduledPublishTime?.getTime()}` +
-            `&access_token=${facebookPageAccessToken}`,
+      )}` +
+        (published && scheduledPublishTime
+          ? ''
+          : `&published=${published}&scheduled_publish_time=${scheduledPublishTime?.getTime()}`) +
+        `&access_token=${facebookPageAccessToken}`,
     )
       .then((ret: any) => {
         if (ret?.error) rej(ret);
