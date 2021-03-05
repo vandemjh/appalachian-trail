@@ -4,5 +4,7 @@ const stop: Router = Router();
 export default stop;
 
 stop.get('/', (req, res) => {
-  process.exit(0);
+  const password: string = req.query.password as string;
+  if (!password || password !== 'jack') res.send('Enter password');
+  else process.exit(0);
 });
