@@ -28,41 +28,48 @@ export class Album {
     this.mediaItems = [];
   }
 
-  public refreshUnpostedUrls() {
-    var r: string[] = ['mediaItemIds='];
-    this.mediaItems
-      .filter((p) => !p?.postedToFB && p?.id)
-      .forEach((c) => r.push(c.id, '&mediaItemIds='));
-    r.pop();
-    const postBatch = (batch: string[]) => {
-      var batchGet = batch.join('');
-      if (batchGet !== '')
-        googlePhotosRequest(token, 'mediaItems:batchGet?' + batchGet)
-          .then((a) => {
-            if ((a as any).error) throw new Error((a as any).message);
-            if (!(a as any).mediaItemResults)
-              throw new Error('No mediaItemResults returned!');
-            (a as any).mediaItemResults.forEach((p: any) => {
-              this.mediaItems.forEach((i) => {
-                try {
-                  if (p?.mediaItem?.id === i.id) i = new Picture(p.mediaItem);
-                } catch (e) {
-                  updateStatus(e);
-                }
+  public async refreshUnpostedUrls(): Promise<void> {
+    return new Promise((res, rej) => {
+      var r: string[] = ['mediaItemIds='];
+      this.mediaItems
+        .filter((p) => !p?.postedToFB && p?.id)
+        .forEach((c) => r.push(c.id, '&mediaItemIds='));
+      r.pop();
+      const postBatch = (batch: string[]) => {
+        var batchGet = batch.join('');
+        if (batchGet !== '')
+          googlePhotosRequest(token, 'mediaItems:batchGet', batchGet)
+            .then((a) => {
+              if ((a as any).error) rej((a as any).message);
+              if (!(a as any).mediaItemResults)
+                rej('No mediaItemResults returned!');
+              (a as any).mediaItemResults.forEach((p: any) => {
+                this.mediaItems.forEach((i) => {
+                  if ((p as any)?.status) console.warn(p);
+                  try {
+                    if (p?.mediaItem?.id === i.id)
+                      this.mediaItems[this.mediaItems.indexOf(i)] = new Picture(
+                        p.mediaItem,
+                      );
+                  } catch (e) {
+                    updateStatus(e);
+                  }
+                });
               });
-            });
-          })
-          .catch((e) => updateStatus(e));
-    };
-    if (r.length > 80) {
-      var i: number,
-        j: number,
-        chunk = 10;
-      for (i = 0, j = r.length; i < j; i += chunk)
-        postBatch(r.slice(i, i + chunk));
-    } else {
-      postBatch(r);
-    }
+              res();
+            })
+            .catch((e) => updateStatus(e));
+      };
+      if (r.length > 80) {
+        var i: number,
+          j: number,
+          chunk = 10;
+        for (i = 0, j = r.length; i < j; i += chunk)
+          postBatch(r.slice(i, i + chunk));
+      } else {
+        postBatch(r);
+      }
+    });
   }
   addPictures(pics: Picture[]) {
     pics.forEach((p) => {
@@ -73,7 +80,7 @@ export class Album {
   }
   public writeFile() {
     writeFile(filePath, JSON.stringify(this.mediaItems), (err) => {
-      if (err) updateStatus(err);
+      if (err) updateStatus(err.toString());
     });
   }
   public async getPictures() {

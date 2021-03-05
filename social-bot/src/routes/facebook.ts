@@ -78,7 +78,7 @@ export async function postPicture(
       'graph.facebook.com',
       `/me/photos?` +
         `url=${picture.fullSizeUrl}` +
-        (picture.description ? `&caption=${picture.description}` : '') +
+        (picture.description ? `&message=${picture.description}` : '') +
         `&published=${published}` +
         `&access_token=${accessToken}`,
     )
@@ -103,9 +103,11 @@ export async function postMultiPhoto(
       `/me/feed?message=${message}&attached_media=${JSON.stringify(
         ids.map((i) => ({ media_fbid: i })),
       )}` +
-        (published && scheduledPublishTime
-          ? ''
-          : `&published=${published}&scheduled_publish_time=${scheduledPublishTime?.getTime()}`) +
+        (!published && scheduledPublishTime
+          ? `&published=${published}&scheduled_publish_time=${
+              scheduledPublishTime?.getTime() / 1000
+            }&unpublished_content_type=SCHEDULED`
+          : '') +
         `&access_token=${facebookPageAccessToken}`,
     )
       .then((ret: any) => {

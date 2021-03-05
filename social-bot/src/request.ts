@@ -1,22 +1,25 @@
 import https from 'https';
 import { Album } from './model/album';
+import querystring from 'querystring';
 require('dotenv').config();
 
 export async function googlePhotosRequest(
   token: string,
-  field:
+  path:
     | 'albums'
     | 'mediaItems'
     | 'mediaItems:search'
     | 'mediaItems:batchGet'
     | string,
-  id?: string,
+  query?: string,
   body?: object,
 ): Promise<object> {
   const options = {
     method: body ? 'POST' : 'GET',
     host: `photoslibrary.googleapis.com`,
-    path: `/v1/${field + (id ? '/' + id : '')}?key=${process.env.API_KEY}`,
+    path: `/v1/${path}${query ? '?' + query + '&' : '?'}key=${
+      process.env.API_KEY
+    }`,
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
@@ -106,7 +109,6 @@ export default async function request(
         });
         resp.on('end', () => {
           try {
-            console.log(data);
             let json = JSON.parse(data);
             if (json?.error) reject(json);
             resolve(json);
