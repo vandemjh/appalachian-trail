@@ -8,8 +8,8 @@ export class Picture implements Media {
   mimeType: string;
   mediaMetadata: Metadata;
   filename: object;
-  fullSizeUrl: string;
-  downloadUrl: string;
+  fullSizeUrl!: string;
+  downloadUrl!: string;
   postedToFB: boolean;
   fbId: string | undefined;
   description?: string;
@@ -20,12 +20,16 @@ export class Picture implements Media {
     this.mimeType = obj.mimeType;
     this.mediaMetadata = new Metadata(obj.mediaMetadata);
     this.filename = obj.filename;
+    this.setUrls();
+    this.description = obj?.description;
+    this.postedToFB = false;
+    this.fbId = undefined;
+  }
+
+  public setUrls() {
     this.fullSizeUrl =
       this.baseUrl +
       `=w${this.mediaMetadata.width}-h${this.mediaMetadata.height}`;
     this.downloadUrl = this.baseUrl + `=d`;
-    this.description = obj?.description;
-    this.postedToFB = false;
-    this.fbId = undefined;
   }
 }

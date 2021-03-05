@@ -78,7 +78,15 @@ export async function postPicture(
       'graph.facebook.com',
       `/me/photos?` +
         `url=${picture.fullSizeUrl}` +
-        (picture.description ? `&message=${picture.description}` : '') +
+        (picture.description
+          ? `&caption=${picture.mediaMetadata.creationTime.toLocaleDateString(
+              'en-US',
+            )} - day ${
+              (new Date(2021, 6, 3).getTime() -
+                picture.mediaMetadata.creationTime.getTime()) /
+              (1000 * 60 * 60 * 24)
+            }${picture.description}`
+          : '') +
         `&published=${published}` +
         `&access_token=${accessToken}`,
     )

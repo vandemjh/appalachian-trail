@@ -19,6 +19,7 @@ export default function start() {
               validFacebookMimeTypes.filter((m) => p?.mimeType.includes(m))
                 .length > 0,
           );
+          console.log(mediaItemsNotPosted);
           var promises = ((pictures: Picture[]): Promise<string>[] => {
             var toReturn: Promise<string>[] = [];
             pictures.forEach((pic) => {
@@ -42,7 +43,13 @@ export default function start() {
           (async (p: Promise<string>[]) => {
             for (let promise of p)
               updateStatus(`Posted photo to FB: ${await promise}`);
-          })(promises);
+          })(promises).then(() => {
+            album.mediaItems.forEach((el) =>
+              mediaItemsNotPosted.forEach((ele) =>
+                el?.id === ele?.id ? (el.postedToFB = true) : null,
+              ),
+            );
+          });
           // updateStatus('Posted to FB: ' + id);
 
           // post()

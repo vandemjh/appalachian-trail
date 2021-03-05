@@ -47,10 +47,11 @@ export class Album {
                 this.mediaItems.forEach((i) => {
                   if ((p as any)?.status) console.warn(p);
                   try {
-                    if (p?.mediaItem?.id === i.id)
-                      this.mediaItems[this.mediaItems.indexOf(i)] = new Picture(
-                        p.mediaItem,
-                      );
+                    if (p?.mediaItem?.id === i.id) {
+                      this.mediaItems[this.mediaItems.indexOf(i)].baseUrl =
+                        p.mediaItem.baseUrl;
+                      this.mediaItems[this.mediaItems.indexOf(i)].setUrls();
+                    }
                   } catch (e) {
                     updateStatus(e);
                   }
